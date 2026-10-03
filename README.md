@@ -1,2 +1,2 @@
-# G-z-Studio
+index.html
 AI video generator for creating cinematic stories from images and prompts.
