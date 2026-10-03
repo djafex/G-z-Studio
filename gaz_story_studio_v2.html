@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>G@z Story Studio — V2</title>
+<style>
+:root{--bg:#090c12;--card:#121722;--card2:#181e2b;--text:#f5f7fb;--muted:#9ca6b7;--gold:#e8b84a;--line:#293142;--ok:#65d6a0;--danger:#ef737d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+header{padding:20px;border-bottom:1px solid var(--line);background:#0d1017}.wrap{max-width:1150px;margin:auto;padding:18px}
+.brand{font-size:22px;font-weight:800}.brand b{color:var(--gold)}.tag{font-size:11px;color:#111;background:var(--gold);padding:4px 7px;border-radius:8px;margin-left:7px}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:17px}
+h2{font-size:17px;margin:0 0 14px}h3{font-size:15px;margin:0 0 8px}label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
+input,textarea,select{width:100%;background:#0c1018;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+textarea{min-height:110px;resize:vertical}.row{display:flex;gap:8px}.row>*{flex:1}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:var(--gold);color:#111}.secondary{background:var(--card2);color:var(--text);border:1px solid var(--line)}.danger{background:#351b20;color:#ffb9be;border:1px solid #5a2b34}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.status{background:#0d121a;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:12px;margin-top:12px}
+.preview{aspect-ratio:1;border:1px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden;text-align:center}.preview img{width:100%;height:100%;object-fit:cover}
+.metric{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #222938;font-size:13px}.metric:last-child{border:0}.metric span{color:var(--muted)}
+.notice{font-size:12px;line-height:1.5;color:#c7cfdb;background:#101621;border-radius:10px;padding:11px}
+.scene{border:1px solid var(--line);background:#0f141d;border-radius:14px;padding:14px;margin:10px 0}.scenehead{display:flex;justify-content:space-between;gap:10px;align-items:center}.badge{background:var(--gold);color:#111;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:800}
+.plan{background:#0b0f16;border:1px solid #252d3c;border-radius:10px;padding:10px;margin:7px 0}.plan b{font-size:12px}.plan small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}.mono{font-family:ui-monospace,monospace;font-size:11px;white-space:pre-wrap;background:#090c11;padding:9px;border-radius:8px;color:#cbd4e1;margin-top:8px}
+.hidden{display:none}@media(max-width:820px){.grid{grid-template-columns:1fr}.wrap{padding:12px}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0"><div class="brand"><b>G@z</b> Story Studio <span class="tag">V2</span></div></div></header>
+<main class="wrap">
+<div class="grid">
+<aside>
+<div class="card">
+<h2>👤 Personnage</h2>
+<label>Nom</label><input id="name" value="Sami">
+<label>Apparence immuable</label>
+<textarea id="appearance">Garçon de 10 ans, visage doux et expressif, cheveux noirs courts, silhouette mince. T-shirt rouge, pantalon bleu et chaussures simples. Style animation 3D cinématique.</textarea>
+<label>Personnalité</label><textarea id="personality">Curieux, courageux, gentil, intelligent et légèrement réservé.</textarea>
+<label>Image de référence</label><input id="image" type="file" accept="image/*">
+<div class="preview" id="preview">Image de référence</div>
+</div>
+
+<div class="card">
+<h2>🎬 Paramètres</h2>
+<label>Style</label><select id="style"><option>Animation 3D cinématique</option><option>Cartoon 3D</option><option>Anime cinématique</option><option>Réalisme cinématographique</option></select>
+<label>Format</label><select id="format"><option value="9:16">9:16 vertical</option><option value="16:9">16:9 paysage</option><option value="1:1">1:1 carré</option></select>
+<label>Durée totale de l'épisode (minutes)</label><input id="episode" type="number" min="1" max="120" value="5">
+<label>Durée d'une scène narrative (minutes)</label><input id="sceneMinutes" type="number" min="1" max="5" step="1" value="1">
+<label>Durée d'un plan vidéo (secondes)</label><input id="shotSeconds" type="number" min="3" max="30" value="5">
+<label>Mode de génération</label><select id="mode"><option value="story">Histoire complète</option><option value="manual">Scènes personnalisées</option></select>
+</div>
+
+<div class="card">
+<h2>🔐 Moteur vidéo</h2>
+<div class="notice"><b>Agnes</b> sera appelé par le backend. Ne mets pas ta clé API dans ce HTML : elle doit rester côté serveur.</div>
+<label>Adresse du backend</label><input id="backend" placeholder="https://ton-backend.example.com">
+<div class="status">État : <b id="apiState">non connecté</b></div>
+</div>
+</aside>
+
+<section>
+<div class="card">
+<h2>📖 Histoire</h2>
+<textarea id="story" style="min-height:180px">Sami travaille tranquillement dans son atelier lorsqu'un événement mystérieux attire son attention. Il décide de découvrir ce qui se passe et commence une aventure.</textarea>
+<div class="actions">
+<button class="primary" id="build">✨ Construire l'épisode</button>
+<button class="secondary" id="save">💾 Sauvegarder</button>
+<button class="secondary" id="export">⬇️ Exporter JSON</button>
+<button class="danger" id="clear">Effacer</button>
+</div>
+<div class="status" id="status">Prêt.</div>
+</div>
+
+<div class="card">
+<h2>📊 Plan de production</h2>
+<div id="metrics"><div class="small">Construis l'épisode pour calculer le plan.</div></div>
+</div>
+
+<div class="card">
+<h2>🧠 Bible de cohérence</h2>
+<div class="mono" id="bible">Aucune bible générée.</div>
+</div>
+
+<div class="card">
+<h2>🎞️ Scènes narratives & plans vidéo</h2>
+<div id="scenes"><div class="notice">Aucune scène. La V2 transformera chaque scène longue en plusieurs plans courts automatiquement.</div></div>
+</div>
+</section>
+</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let state={imageData:null,scenes:[]};
+
+$("image").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{state.imageData=r.result;$("preview").innerHTML="<img alt='Référence'>";$("preview").querySelector("img").src=r.result};r.readAsDataURL(f);
+};
+
+function data(){
+ return {
+  name:$("name").value.trim()||"Personnage",
+  appearance:$("appearance").value.trim(),
+  personality:$("personality").value.trim(),
+  style:$("style").value,format:$("format").value,
+  episodeMin:Math.max(1,Math.min(120,+$("episode").value||5)),
+  sceneMin:Math.max(1,Math.min(5,+$("sceneMinutes").value||1)),
+  shotSec:Math.max(3,Math.min(30,+$("shotSeconds").value||5)),
+  story:$("story").value.trim(),backend:$("backend").value.trim()
+ };
+}
+function bible(d){return `BIBLE DE COHÉRENCE — ${d.name}
+APPARENCE IMMUTABLE:
+${d.appearance}
+
+PERSONNALITÉ:
+${d.personality}
+
+STYLE:
+${d.style}
+FORMAT:
+${d.format}
+
+RÈGLES:
+1. Même visage, âge, coiffure et proportions dans tous les plans.
+2. Même vêtements et accessoires sauf changement narratif explicite.
+3. Même style visuel, rendu et niveau de détail.
+4. Respecter la chronologie.
+5. Utiliser la fin de chaque plan comme état de départ du suivant.
+6. Aucun changement arbitraire de décor, d'heure ou de météo.
+7. La scène narrative est longue, mais elle est composée de plans courts assemblables.`;
+}
+function sentences(s){return (s.match(/[^.!?]+[.!?]+/g)||[s]).map(x=>x.trim()).filter(Boolean)}
+function buildScenes(d){
+ const totalSeconds=d.episodeMin*60;
+ const sceneSeconds=d.sceneMin*60;
+ const count=Math.ceil(totalSeconds/sceneSeconds);
+ const plansPerScene=Math.ceil(sceneSeconds/d.shotSec);
+ const parts=sentences(d.story);
+ const beats=["installation et présentation","développement de l'action","interaction ou découverte","montée de la tension","moment important","transition vers la suite"];
+ let arr=[];
+ for(let i=0;i<count;i++){
+   const duration=(i===count-1?totalSeconds-(count-1)*sceneSeconds:sceneSeconds);
+   const n=Math.max(1,Math.ceil(duration/d.shotSec));
+   let plans=[];
+   for(let p=0;p<n;p++){
+     const global=i*n+p+1;
+     const source=parts[(i+p)%parts.length]||d.story;
+     const beat=beats[(i+p)%beats.length];
+     plans.push({number:p+1,duration:Math.min(d.shotSec,duration-p*d.shotSec),beat,source});
+   }
+   arr.push({number:i+1,duration,plans});
+ }
+ return arr;
+}
+function prompt(d,s,p,prev){
+ return `${d.style}, ${d.format}, cinematic video shot.
+CHARACTER LOCK: ${d.name}; ${d.appearance}; personality: ${d.personality}.
+EPISODE STORY: ${d.story}
+NARRATIVE SCENE ${s.number}, PLAN ${p.number}: ${p.beat}.
+Action/narrative: ${p.source}
+Previous visual state: ${prev||"opening shot; establish character and location"}.
+Maintain exact character identity, face, hair, body proportions, clothing, props and environment continuity. Natural motion. Cinematic composition. No text. No watermark.`;
+}
+function render(d){
+ const scenes=buildScenes(d);state.scenes=scenes;
+ let totalPlans=scenes.reduce((a,s)=>a+s.plans.length,0);
+ $("metrics").innerHTML=`<div class="metric"><span>Durée épisode</span><b>${d.episodeMin} min</b></div>
+ <div class="metric"><span>Scènes narratives</span><b>${scenes.length}</b></div>
+ <div class="metric"><span>Plans vidéo estimés</span><b>${totalPlans}</b></div>
+ <div class="metric"><span>Durée cible d'un plan</span><b>${d.shotSec}s</b></div>`;
+ $("bible").textContent=bible(d);
+ $("scenes").innerHTML="";
+ scenes.forEach((s,si)=>{
+  const el=document.createElement("div");el.className="scene";
+  let plans=s.plans.map((p,pi)=>{
+   const prev=pi?s.plans[pi-1].beat:(si?"fin de la scène précédente":"ouverture");
+   const pr=prompt(d,s,p,prev);
+   return `<div class="plan"><b>Plan ${p.number} — ${p.duration}s</b><small>${esc(p.beat)} — ${esc(p.source)}</small><div class="mono">${esc(pr)}</div></div>`;
+  }).join("");
+  el.innerHTML=`<div class="scenehead"><h3>Scène ${s.number} — ${Math.round(s.duration/60*10)/10} min</h3><span class="badge">${s.plans.length} plans</span></div>${plans}`;
+  $("scenes").appendChild(el);
+ });
+ $("status").textContent=`Épisode construit : ${scenes.length} scènes narratives et ${totalPlans} plans vidéo.`;
+}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+$("build").onclick=()=>{const d=data();if(!d.story){$("status").textContent="Ajoute une histoire.";return}render(d)};
+$("save").onclick=()=>{localStorage.setItem("gazStoryV2",JSON.stringify({...data(),imageData:state.imageData,scenes:state.scenes}));$("status").textContent="Projet V2 sauvegardé dans le navigateur."};
+$("export").onclick=()=>{const d=data(),o={settings:d,bible:bible(d),imageReference:state.imageData?"présente":"absente",scenes:state.scenes};const b=new Blob([JSON.stringify(o,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="gaz-story-v2.json";a.click();URL.revokeObjectURL(a.href)};
+$("clear").onclick=()=>{if(!confirm("Effacer le projet ?"))return;localStorage.removeItem("gazStoryV2");location.reload()};
+</script>
+</body>
+</html>
